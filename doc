@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 18th Birthday!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>🎉 Happy 18th Birthday! 🎂</h1>
+        <p>Leave a message, photo, or video for the birthday person!</p>
+    </header>
+
+    <form id="uploadForm">
+        <textarea id="message" placeholder="Write your message..."></textarea>
+        <input type="file" id="fileUpload" accept="image/*,video/*">
+        <button type="submit">Submit</button>
+    </form>
+
+    <section id="gallery">
+        <h2>🎁 Birthday Messages & Memories 🎁</h2>
+        <div id="contentDisplay"></div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
