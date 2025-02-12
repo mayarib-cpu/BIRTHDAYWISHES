@@ -1,83 +1,156 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Upload } from "lucide-react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 18th Birthday!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Indie+Flower&display=swap');
 
-const BirthdayWebsite = () => {
-  const [submissions, setSubmissions] = useState([]);
-  const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
-  const [file, setFile] = useState(null);
-  
-  useEffect(() => {
-    const storedSubmissions = JSON.parse(localStorage.getItem("submissions")) || [];
-    setSubmissions(storedSubmissions);
-  }, []);
+        body {
+            font-family: 'Indie Flower', cursive;
+            background-color: #fff9e8;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name || !message) return;
-    
-    const newSubmission = {
-      name,
-      message,
-      file: file ? URL.createObjectURL(file) : null,
-    };
-    const updatedSubmissions = [...submissions, newSubmission];
-    setSubmissions(updatedSubmissions);
-    localStorage.setItem("submissions", JSON.stringify(updatedSubmissions));
-    
-    setName("");
-    setMessage("");
-    setFile(null);
-  };
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #c04b5c;
+        }
 
-  return (
-    <div className="min-h-screen bg-pink-50 flex flex-col items-center p-8">
-      <h1 className="text-4xl font-bold mb-4 text-pink-600">Happy 18th Birthday!</h1>
-      <p className="text-lg text-gray-700 mb-6">Leave your messages, photos, and videos for a special birthday scrapbook!</p>
-      
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <Input 
-          type="text" 
-          placeholder="Your Name" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
-          className="mb-4"
-        />
-        <Textarea 
-          placeholder="Write your message here..." 
-          value={message} 
-          onChange={(e) => setMessage(e.target.value)} 
-          className="mb-4"
-        />
-        <input 
-          type="file" 
-          accept="image/*,video/*" 
-          onChange={(e) => setFile(e.target.files[0])} 
-          className="mb-4"
-        />
-        <Button type="submit" className="w-full bg-pink-500 text-white">Submit</Button>
-      </form>
-      
-      <div className="mt-8 w-full max-w-2xl">
-        <h2 className="text-2xl font-semibold mb-4 text-pink-600">Messages & Media</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {submissions.map((item, index) => (
-            <Card key={index} className="p-4 bg-white shadow-md rounded-lg">
-              <CardContent>
-                <h3 className="font-semibold text-pink-500">{item.name}</h3>
-                <p className="text-gray-700">{item.message}</p>
-                {item.file && <img src={item.file} alt="Uploaded" className="mt-2 rounded-lg" />}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+        #upload-container {
+            background: #ffebcd;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            margin: 20px auto;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input, textarea {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #c04b5c;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: #c04b5c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #a03b4c;
+        }
+
+        #scrapbook {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .entry {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        img, video {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎂 Happy 18th Birthday! 🎉</h1>
+
+    <div id="upload-container">
+        <textarea id="message" placeholder="Write your message..."></textarea>
+        <input type="file" id="fileInput" accept="image/*,video/*">
+        <button onclick="submitEntry()">Submit</button>
     </div>
-  );
-};
 
-export default BirthdayWebsite;
+    <div id="scrapbook"></div>
+
+    <script>
+        function loadEntries() {
+            let entries = JSON.parse(localStorage.getItem("scrapbook")) || [];
+            let scrapbook = document.getElementById("scrapbook");
+            scrapbook.innerHTML = "";
+            
+            entries.forEach(entry => {
+                let div = document.createElement("div");
+                div.className = "entry";
+
+                if (entry.message) {
+                    let p = document.createElement("p");
+                    p.innerText = entry.message;
+                    div.appendChild(p);
+                }
+
+                if (entry.file && entry.fileType.startsWith("image/")) {
+                    let img = document.createElement("img");
+                    img.src = entry.file;
+                    div.appendChild(img);
+                } else if (entry.file && entry.fileType.startsWith("video/")) {
+                    let video = document.createElement("video");
+                    video.src = entry.file;
+                    video.controls = true;
+                    div.appendChild(video);
+                }
+
+                scrapbook.appendChild(div);
+            });
+        }
+
+        function submitEntry() {
+            let message = document.getElementById("message").value;
+            let fileInput = document.getElementById("fileInput").files[0];
+
+            let newEntry = { message: message, file: null, fileType: null };
+
+            if (fileInput) {
+                let reader = new FileReader();
+                reader.onload = function(event) {
+                    newEntry.file = event.target.result;
+                    newEntry.fileType = fileInput.type;
+                    saveEntry(newEntry);
+                };
+                reader.readAsDataURL(fileInput);
+            } else {
+                saveEntry(newEntry);
+            }
+        }
+
+        function saveEntry(entry) {
+            let entries = JSON.parse(localStorage.getItem("scrapbook")) || [];
+            entries.push(entry);
+            localStorage.setItem("scrapbook", JSON.stringify(entries));
+            loadEntries();
+        }
+
+        window.onload = loadEntries;
+    </script>
+
+</body>
+</html>
+
+    
+ 
+       
+   
